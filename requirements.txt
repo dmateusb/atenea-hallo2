@@ -1,0 +1,5 @@
+# Core dependencies for Hallo2 video generation
+PyYAML>=6.0.1
+
+# Hallo2 will install its own dependencies when cloned
+# This file is for standalone utilities only

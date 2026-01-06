@@ -1,0 +1,59 @@
+# Node.js
+node_modules/
+dist/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Python
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Hallo2
+hallo2/
+checkpoints/
+pretrained_models/
+
+# Data directories
+data/images/*
+!data/images/.gitkeep
+data/audio/*
+!data/audio/.gitkeep
+data/videos/*
+!data/videos/.gitkeep
+
+# Configs
+configs/*.yaml
+!configs/.gitkeep
+
+# Output files
+*.mp4
+*.mp3
+*.wav
+output.*
+input.txt
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing
+coverage/
+.vitest/
+
+# Build
+*.tsbuildinfo
