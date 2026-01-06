@@ -28,8 +28,11 @@ program
   .option('-a, --avatar <image>', 'Avatar image path', 'data/images/avatar.png')
   .option('-o, --output <file>', 'Output video path', 'output.mp4')
   .option('-v, --voice <voice>', 'TTS voice (nova, alloy, echo, fable, onyx, shimmer)', 'nova')
+  .option('--quality <mode>', 'Quality preset (balanced, high, ultra)', 'balanced')
   .option('--fps <number>', 'Frame rate (default: 25)', '25')
   .option('--steps <number>', 'Inference steps - 40=balanced, 50=high quality (default: 40)', '40')
+  .option('--lip-weight <number>', 'Lip sync strength (1.0=default, 1.5-2.0=stronger)', '1.0')
+  .option('--cfg-scale <number>', 'Guidance scale for audio adherence (3.5=default)', '3.5')
   .action(async (options) => {
     const spinner = ora();
 
@@ -80,6 +83,8 @@ program
       // Parse numeric options
       const fps = parseInt(options.fps, 10);
       const steps = parseInt(options.steps, 10);
+      const lipWeight = parseFloat(options.lipWeight);
+      const cfgScale = parseFloat(options.cfgScale);
 
       if (isNaN(fps) || fps <= 0) {
         console.error(chalk.red('❌ Invalid FPS value'));
@@ -89,6 +94,22 @@ program
       if (isNaN(steps) || steps <= 0) {
         console.error(chalk.red('❌ Invalid steps value'));
         process.exit(1);
+      }
+
+      if (isNaN(lipWeight) || lipWeight <= 0) {
+        console.error(chalk.red('❌ Invalid lip-weight value'));
+        process.exit(1);
+      }
+
+      if (isNaN(cfgScale) || cfgScale <= 0) {
+        console.error(chalk.red('❌ Invalid cfg-scale value'));
+        process.exit(1);
+      }
+      
+      const VALID_QUALITIES = ['balanced', 'high', 'ultra'];
+      if (!VALID_QUALITIES.includes(options.quality)) {
+         console.error(chalk.red(`❌ Invalid quality: ${options.quality}. Must be one of: ${VALID_QUALITIES.join(', ')}`));
+         process.exit(1);
       }
 
       // Generate video
@@ -104,6 +125,9 @@ program
         outputPath: videoPath,
         fps,
         steps,
+        lipWeight,
+        cfgScale,
+        quality: options.quality as 'balanced' | 'high' | 'ultra',
       });
 
       spinner.succeed('Video generated successfully!');

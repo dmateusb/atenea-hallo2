@@ -11,4 +11,7 @@ export interface GenerateVideoParams {
   outputPath: string;
   fps?: number;
   steps?: number;
+  lipWeight?: number;
+  cfgScale?: number;
+  quality?: 'balanced' | 'high' | 'ultra';
 }

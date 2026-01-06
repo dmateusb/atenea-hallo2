@@ -9,7 +9,7 @@ const __dirname = path.dirname(__filename);
 export async function generateVideo(
   params: GenerateVideoParams
 ): Promise<string> {
-  const { imagePath, audioPath, outputPath, fps = 25, steps = 40 } = params;
+  const { imagePath, audioPath, outputPath, fps = 25, steps = 40, lipWeight = 1.0, cfgScale = 3.5 } = params;
 
   const pythonScript = path.join(
     __dirname,
@@ -24,6 +24,7 @@ export async function generateVideo(
   console.log(`🎵 Audio: ${audioPath}`);
   console.log(`🎥 Output: ${outputPath}`);
   console.log(`⚙️  FPS: ${fps}, Steps: ${steps}`);
+  console.log(`⚙️  Lip Weight: ${lipWeight}, CFG Scale: ${cfgScale}`);
 
   return new Promise((resolve, reject) => {
     const args = [
@@ -34,10 +35,16 @@ export async function generateVideo(
       audioPath,
       '--output',
       outputPath,
+      '--quality',
+      params.quality || 'balanced',
       '--fps',
       fps.toString(),
       '--steps',
       steps.toString(),
+      '--lip-weight',
+      lipWeight.toString(),
+      '--cfg-scale',
+      cfgScale.toString(),
     ];
 
     const process = spawn(venvPython, args);

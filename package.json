@@ -14,7 +14,8 @@
     "test": "vitest",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "setup": "./scripts/setup.sh"
+    "setup": "./scripts/setup.sh",
+    "download-models": "python3 scripts/download-models.py"
   },
   "keywords": [
     "ai",

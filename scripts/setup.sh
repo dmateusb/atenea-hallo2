@@ -18,28 +18,57 @@ if [ ! -f "package.json" ]; then
     exit 1
 fi
 
-# Step 1: Check Node.js version
-echo -e "${BLUE}📦 Checking Node.js version...${NC}"
-if ! command -v node &> /dev/null; then
-    echo -e "${RED}❌ Node.js is not installed${NC}"
-    echo -e "${YELLOW}Please install Node.js 20+ from: https://nodejs.org/${NC}"
-    exit 1
+# Step 1: Install nvm if not present
+echo -e "${BLUE}📦 Checking nvm (Node Version Manager)...${NC}"
+export NVM_DIR="$HOME/.nvm"
+
+if [ ! -d "$NVM_DIR" ]; then
+    echo -e "${YELLOW}⚠️  nvm not found, installing...${NC}"
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+
+    # Load nvm
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+    echo -e "${GREEN}✅ nvm installed${NC}"
+else
+    echo -e "${GREEN}✅ nvm already installed${NC}"
+    # Load nvm
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 fi
 
+# Step 2: Install and use Node.js 20+ via nvm
+echo ""
+echo -e "${BLUE}📦 Setting up Node.js with nvm...${NC}"
+
+# Install Node.js 20 if not present
+if ! nvm ls 20 &> /dev/null; then
+    echo -e "${YELLOW}⚠️  Node.js 20 not found, installing via nvm...${NC}"
+    nvm install 20
+    echo -e "${GREEN}✅ Node.js 20 installed${NC}"
+else
+    echo -e "${GREEN}✅ Node.js 20 already installed${NC}"
+fi
+
+# Use Node.js 20
+nvm use 20
+
+# Verify Node.js version
 NODE_VERSION=$(node -v | cut -d'v' -f2 | cut -d'.' -f1)
 if [ "$NODE_VERSION" -lt 20 ]; then
     echo -e "${RED}❌ Node.js version 20+ required (found: $(node -v))${NC}"
     exit 1
 fi
-echo -e "${GREEN}✅ Node.js $(node -v) detected${NC}"
+echo -e "${GREEN}✅ Using Node.js $(node -v)${NC}"
 
-# Step 2: Install Node.js dependencies
+# Step 3: Install Node.js dependencies
 echo ""
 echo -e "${BLUE}📦 Installing Node.js dependencies...${NC}"
 npm install
 echo -e "${GREEN}✅ Node.js dependencies installed${NC}"
 
-# Step 3: Check Python version
+# Step 4: Check Python version
 echo ""
 echo -e "${BLUE}🐍 Checking Python version...${NC}"
 if ! command -v python3 &> /dev/null; then
@@ -138,12 +167,19 @@ mkdir -p data/audio
 mkdir -p data/videos
 echo -e "${GREEN}✅ Data directories created${NC}"
 
-# Step 11: Download Hallo2 models (optional)
+# Step 11: Download Hallo2 models
 echo ""
 echo -e "${BLUE}📥 Hallo2 Model Download${NC}"
-echo -e "${YELLOW}Hallo2 requires pretrained models to run.${NC}"
-echo -e "${YELLOW}Please follow the instructions in hallo2/README.md to download models.${NC}"
-echo -e "${YELLOW}Models are typically downloaded to: hallo2/pretrained_models/${NC}"
+echo -e "${YELLOW}Hallo2 requires pretrained models (~10GB) to run.${NC}"
+echo ""
+read -p "Do you want to download models now? This may take 10-30 minutes. (y/N): " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    python3 scripts/download-models.py
+else
+    echo -e "${YELLOW}⚠️  You can download models later by running:${NC}"
+    echo -e "${CYAN}   npm run download-models${NC}"
+fi
 echo ""
 
 # Setup complete
@@ -156,5 +192,7 @@ echo -e "  2. Download Hallo2 models (see hallo2/README.md)"
 echo -e "  3. Add an avatar image to: data/images/avatar.png"
 echo -e "  4. Create an input text file: input.txt"
 echo -e "  5. Run: npm run generate"
+echo -e "  6. Run: npm run generate -- --quality ultra"
+echo -e "  7. Run: npm run generate -- --quality balanced"
 echo ""
 echo -e "${BLUE}For more information, see README.md${NC}"
